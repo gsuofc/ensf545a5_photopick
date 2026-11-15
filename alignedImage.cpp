@@ -6,8 +6,8 @@
 
 #include "alignedImage.h"
 
-alignedImage::alignedImage() {
-
+alignedImage::alignedImage(unsigned int tid) {
+    textureID = tid;
 }
 alignedImage::~alignedImage() {
 
@@ -25,20 +25,27 @@ void alignedImage::alignAdd(double x, double y) {
 
 void alignedImage::draw() {
     glPushMatrix();
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
     glLoadIdentity();
     glTranslated(xAlign, yAlign, 0);
     glBegin(GL_QUADS);
-        glColor3f(1.0f, 0.0f, 0.0f);   // Red
+        glColor4f(1.0f, 1.0f, 1.0f, 0.3f);   // make kind of transparent
+
+        glTexCoord2f(0.0f, 0.0f);
         glVertex2f(-0.5f, -0.5f);      // Bottom-left
 
-        glColor3f(0.0f, 1.0f, 0.0f);   // Green
+        glTexCoord2f(1.0f, 0.0f); 
         glVertex2f(0.5f, -0.5f);       // Bottom-right
 
-        glColor3f(0.0f, 0.0f, 1.0f);   // Blue
+        glTexCoord2f(1.0f, 1.0f); 
         glVertex2f(0.5f, 0.5f);        // Top-right
         
-        glColor3f(0.0f, 0.0f, 0.0f);   // Black
+        glTexCoord2f(0.0f, 1.0f); 
         glVertex2f(-0.5f, 0.5f);        // Top-left
     glEnd();
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
 }
