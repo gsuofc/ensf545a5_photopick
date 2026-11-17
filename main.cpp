@@ -44,6 +44,11 @@ int stereoView = 1;
 int hapticMode = 0;
 int showHud = 1;
 
+//Zoom and scrolling
+double zoom = 1;
+double xCam = 0;
+double yCam = 0;
+
 string getYesNo(int condition) {
     if (condition) return "Yes";
     return "No";
@@ -96,13 +101,14 @@ void drawText(int width, int height) {
     gluOrtho2D(0, width, 0, height);
     string HUDTXT[] = {
         "ENSF545A5 Gavin+Kewei: Photogrammetry Obs Tool",
-        "Hide HUD (h), Exit fullscreen (p), Quit (esc)",
         "FPS: "+to_string(displayedFPS),
+        "Hide HUD (h), Exit fullscreen (p), Quit (esc)",
+        "Pan (w,s,a,d), Zoom (q,e)",
         "Window: "+to_string(width)+"x"+to_string(height),
         "Stereo Mode (space): "+getYesNo(stereoView),
         "Haptic Mode (1): "+to_string(hapticMode+1),
     };
-    int HUDlength = 6;
+    int HUDlength = 7;
     for (int i=0; i<HUDlength; i++) drawBitmapText(0,18*i,HUDTXT[i]);
     glPopMatrix();
 }
@@ -118,6 +124,9 @@ void display() {
 
     glMatrixMode(GL_MODELVIEW); //model view
     glLoadIdentity();
+
+    glTranslated(xCam,yCam,0);
+    glScaled(zoom,zoom,1);
 
     glEnable(GL_BLEND); //enable transparency
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -138,6 +147,8 @@ void display() {
 
     glDisable(GL_BLEND);
 
+    glMatrixMode(GL_MODELVIEW); //model view
+    glLoadIdentity();
     if (stereoView) {
         glViewport(0,0,width/5,height);
         drawText(width/2, height);
@@ -158,16 +169,22 @@ void keyboard(unsigned char key, int x, int y) {
             exit(0);
             break;
         case 'w':
-            leftImage->alignAdd(0,MOVEMENT_RATE);
+            yCam+=0.25;
             break;
         case 's':
-            leftImage->alignAdd(0,-MOVEMENT_RATE);
+            yCam+=-0.25;
             break;
         case 'a':
-            leftImage->alignAdd(-MOVEMENT_RATE,0);
+            xCam-=0.25;
             break;
         case 'd':
-            leftImage->alignAdd(MOVEMENT_RATE,0);
+            xCam+=0.25;
+            break;
+        case 'q':
+            zoom/=2;
+            break;
+        case 'e':
+            zoom*=2;
             break;
         case ' ':
             stereoView=!stereoView;
@@ -199,13 +216,15 @@ void mouseCallback(int button, int state, int x, int y) {
 
 void motionCallback(int x, int y) {
     int width = glutGet(GLUT_WINDOW_WIDTH);
+    if (stereoView) width/=2;
     int height = glutGet(GLUT_WINDOW_HEIGHT);
     if (isDragging) {
         int deltaX = x - lastMouseX;
         int deltaY = y - lastMouseY;
 
-        double moveX = deltaX*1.0/width*2;
-        double moveY = -deltaY*1.0/height*2;
+        double moveX = deltaX*1.0/width*2/zoom;
+        double moveY = -deltaY*1.0/height*2/zoom;
+
 
         if (clickedButton == GLUT_LEFT_BUTTON) {
             leftImage->alignAdd(moveX,moveY);

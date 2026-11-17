@@ -29,7 +29,7 @@ void alignedImage::draw(float opacity) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
-    glLoadIdentity();
+    //glLoadIdentity();
     glTranslated(xAlign, yAlign, 0);
     glBegin(GL_QUADS);
         glColor4f(1.0f, 1.0f, 1.0f, opacity);   
