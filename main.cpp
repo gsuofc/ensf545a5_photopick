@@ -33,6 +33,12 @@ double actualFPS = 0;
 double displayedFPS = 0;
 int frames = 0;
 
+//Mouse tracking
+int isDragging = 0;
+int lastMouseX = 0;
+int lastMouseY = 0;
+int clickedButton = -1;
+
 //Toggles
 int stereoView = 1;
 int hapticMode = 0;
@@ -148,6 +154,41 @@ void keyboard(unsigned char key, int x, int y) {
     glutPostRedisplay();
 }
 
+void mouseCallback(int button, int state, int x, int y) {
+    if (state == GLUT_DOWN) {
+        isDragging = 1;
+        clickedButton = button; 
+        lastMouseX = x;
+        lastMouseY = y;
+    } else if (state == GLUT_UP) {
+        isDragging = 0;
+        clickedButton = -1;
+    }
+}
+
+void motionCallback(int x, int y) {
+    int width = glutGet(GLUT_WINDOW_WIDTH);
+    int height = glutGet(GLUT_WINDOW_HEIGHT);
+    if (isDragging) {
+        int deltaX = x - lastMouseX;
+        int deltaY = y - lastMouseY;
+
+        double moveX = deltaX*1.0/width;
+        double moveY = -deltaY*1.0/height;
+
+        if (clickedButton == GLUT_LEFT_BUTTON) {
+            leftImage->alignAdd(moveX,moveY);
+        } else if (clickedButton == GLUT_RIGHT_BUTTON) {
+            rightImage->alignAdd(moveX,moveY);
+        }
+
+        lastMouseX = x;
+        lastMouseY = y;
+
+        glutPostRedisplay(); 
+    }
+}
+
 //In case we decide for a constant FPS update
 void timer(int value) {
     glutTimerFunc(interval, timer, 0); 
@@ -174,6 +215,9 @@ int main(int argc, char** argv) {
 
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
+
+    glutMouseFunc(mouseCallback);
+    glutMotionFunc(motionCallback);
 
 #ifdef CONSTANT_UPDATE
     glutTimerFunc(0, timer, 0);
