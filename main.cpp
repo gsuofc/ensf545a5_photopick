@@ -4,11 +4,13 @@
     #include <GL/glut.h>
 #endif
 
-//#define CONSTANT_UPDATE
+#define CONSTANT_UPDATE
 
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include "chronoTimekeep.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "alignedImage.h"
@@ -21,14 +23,23 @@ alignedImage* leftImage;
 alignedImage* rightImage;
 
 const int FPS = 60;
-const int fpsInterval = 1000;
+const int fpsDispInterval = 100; //Rate to update FPS count
+const int interval = 1000 / FPS; //Rate to actually redraw
 
-const int interval = 1000 / FPS;
-double actualFps = 0;
+//FPS counting
+double actualFPS = 0;
 double displayedFPS = 0;
-int frameCount = 0;
+int frames = 0;
 
-
+void calculateFPS() {
+    frames++;
+    double period = timeSinceLastCall();
+    if (period>1.0) {
+        actualFPS = frames/period;
+        resetTime();
+        frames=0;
+    }
+}
 
 void drawBitmapText(float x, float y, const std::string& text) {
     int height = glutGet(GLUT_WINDOW_HEIGHT);
@@ -62,6 +73,7 @@ void display() {
     glPopMatrix();
 
     glutSwapBuffers();
+    calculateFPS();
 }
 
 void keyboard(unsigned char key, int x, int y) {
@@ -82,21 +94,22 @@ void keyboard(unsigned char key, int x, int y) {
             leftImage->alignAdd(MOVEMENT_RATE,0);
             break;
     }
-    frameCount++;
     glutPostRedisplay();
 }
 
 //In case we decide for a constant FPS update
 void timer(int value) {
-    frameCount++;
-    glutPostRedisplay(); 
     glutTimerFunc(interval, timer, 0); 
+    glutPostRedisplay(); 
+}
+
+void idleFunc() {
+    glutPostRedisplay(); 
 }
 
 void fps_timer(int value) {
-    displayedFPS = frameCount*1000/fpsInterval;
-    frameCount = 0;
-    glutTimerFunc(fpsInterval, fps_timer, 0); 
+    displayedFPS = actualFPS;
+    glutTimerFunc(fpsDispInterval, fps_timer, 0); 
 }
 
 int main(int argc, char** argv) {
@@ -112,7 +125,8 @@ int main(int argc, char** argv) {
     glutKeyboardFunc(keyboard);
 
 #ifdef CONSTANT_UPDATE
-    glutTimerFunc(0, timer, 0);
+    //glutTimerFunc(0, timer, 0);
+    glutIdleFunc(idleFunc);
 #endif
 
     glutTimerFunc(0, fps_timer, 0);
