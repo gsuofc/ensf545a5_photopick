@@ -25,7 +25,8 @@ alignedImage* rightImage;
 const int FPS = 60;
 const int fpsDispInterval = 100; //Rate to update FPS count
 const int interval = 1000 / FPS; //Rate to actually redraw
-Timer* fpsInterfal = new Timer();
+Timer* fpsInterfalTimer = new Timer();
+Timer* frameInterfalTimer = new Timer();
 
 //FPS counting
 double actualFPS = 0;
@@ -35,15 +36,19 @@ int frames = 0;
 //Toggles
 int stereoView = 1;
 
+string getYesNo(int condition) {
+    if (condition) return "Yes";
+    return "No";
+}
+
 void calculateFPS() {
     frames++;
-    double period = fpsInterfal->timeSinceLastCall();
+    double period = fpsInterfalTimer->timeSinceLastCall();
     if (period>1.0) {
         actualFPS = frames/period;
-        fpsInterfal->resetTime();
+        fpsInterfalTimer->resetTime();
         frames=0;
     }
-    cout << period << endl;
 }
 
 void drawBitmapText(float x, float y, const std::string& text) {
@@ -60,13 +65,17 @@ void drawText(int width, int height) {
     //Text
     glPushMatrix();
     gluOrtho2D(0, width, 0, height);
-    drawBitmapText(0,0,"FPS: "+to_string(displayedFPS));
-    drawBitmapText(0,18,"Window: "+to_string(width)+"x"+to_string(height));
-    drawBitmapText(0,18*2,"Stereo Mode (space): "+to_string(stereoView));
+    drawBitmapText(0,0,"ENSF545A5 Gavin+Kewei: Photogrammetry Obs Tool");
+    drawBitmapText(0,18,"FPS: "+to_string(displayedFPS));
+    drawBitmapText(0,18*2,"Window: "+to_string(width)+"x"+to_string(height));
+    drawBitmapText(0,18*3,"Stereo Mode (space): "+getYesNo(stereoView));
     glPopMatrix();
 }
 
 void display() {
+    if (frameInterfalTimer->timeSinceLastCall()<interval/1000.0f) return; //this stops an odd glitch where display() is called twice, no need to render twice
+    frameInterfalTimer->resetTime();
+
     int width = glutGet(GLUT_WINDOW_WIDTH);
     int height = glutGet(GLUT_WINDOW_HEIGHT);
 
