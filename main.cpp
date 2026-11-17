@@ -35,6 +35,7 @@ int frames = 0;
 
 //Toggles
 int stereoView = 1;
+int hapticMode = 0;
 
 string getYesNo(int condition) {
     if (condition) return "Yes";
@@ -65,10 +66,15 @@ void drawText(int width, int height) {
     //Text
     glPushMatrix();
     gluOrtho2D(0, width, 0, height);
-    drawBitmapText(0,0,"ENSF545A5 Gavin+Kewei: Photogrammetry Obs Tool");
-    drawBitmapText(0,18,"FPS: "+to_string(displayedFPS));
-    drawBitmapText(0,18*2,"Window: "+to_string(width)+"x"+to_string(height));
-    drawBitmapText(0,18*3,"Stereo Mode (space): "+getYesNo(stereoView));
+    string HUDTXT[] = {
+        "ENSF545A5 Gavin+Kewei: Photogrammetry Obs Tool",
+        "FPS: "+to_string(displayedFPS),
+        "Window: "+to_string(width)+"x"+to_string(height),
+        "Stereo Mode (space): "+getYesNo(stereoView),
+        "Haptic Mode (1): "+to_string(hapticMode+1),
+    };
+    int HUDlength = 5;
+    for (int i=0; i<HUDlength; i++) drawBitmapText(0,18*i,HUDTXT[i]);
     glPopMatrix();
 }
 
@@ -134,6 +140,9 @@ void keyboard(unsigned char key, int x, int y) {
             break;
         case ' ':
             stereoView=!stereoView;
+            break;
+        case '1':
+            hapticMode=!hapticMode;
             break;
     }
     glutPostRedisplay();
