@@ -23,7 +23,7 @@ void alignedImage::alignAdd(double x, double y) {
     yAlign += y;
 }
 
-void alignedImage::draw() {
+void alignedImage::draw(float opacity) {
     glPushMatrix();
 
     glEnable(GL_TEXTURE_2D);
@@ -32,7 +32,7 @@ void alignedImage::draw() {
     glLoadIdentity();
     glTranslated(xAlign, yAlign, 0);
     glBegin(GL_QUADS);
-        glColor4f(1.0f, 1.0f, 1.0f, 0.3f);   // make kind of transparent
+        glColor4f(1.0f, 1.0f, 1.0f, opacity);   
 
         glTexCoord2f(0.0f, 0.0f);
         glVertex2f(-0.5f, -0.5f);      // Bottom-left

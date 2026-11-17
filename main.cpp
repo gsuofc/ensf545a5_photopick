@@ -25,20 +25,25 @@ alignedImage* rightImage;
 const int FPS = 60;
 const int fpsDispInterval = 100; //Rate to update FPS count
 const int interval = 1000 / FPS; //Rate to actually redraw
+Timer* fpsInterfal = new Timer();
 
 //FPS counting
 double actualFPS = 0;
 double displayedFPS = 0;
 int frames = 0;
 
+//Toggles
+int stereoView = 1;
+
 void calculateFPS() {
     frames++;
-    double period = timeSinceLastCall();
+    double period = fpsInterfal->timeSinceLastCall();
     if (period>1.0) {
         actualFPS = frames/period;
-        resetTime();
+        fpsInterfal->resetTime();
         frames=0;
     }
+    cout << period << endl;
 }
 
 void drawBitmapText(float x, float y, const std::string& text) {
@@ -51,29 +56,51 @@ void drawBitmapText(float x, float y, const std::string& text) {
     }
 }
 
-void display() {
-    int width = glutGet(GLUT_WINDOW_WIDTH);
-    int height = glutGet(GLUT_WINDOW_HEIGHT);
-
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    leftImage->draw();
-    rightImage->draw();
-
-    glDisable(GL_BLEND);
-
+void drawText(int width, int height) {
     //Text
     glPushMatrix();
     gluOrtho2D(0, width, 0, height);
     drawBitmapText(0,0,"FPS: "+to_string(displayedFPS));
     drawBitmapText(0,18,"Window: "+to_string(width)+"x"+to_string(height));
+    drawBitmapText(0,18*2,"Stereo Mode (space): "+to_string(stereoView));
     glPopMatrix();
+}
+
+void display() {
+    int width = glutGet(GLUT_WINDOW_WIDTH);
+    int height = glutGet(GLUT_WINDOW_HEIGHT);
+
+    glClear(GL_COLOR_BUFFER_BIT); //clear screen
+
+    glMatrixMode(GL_MODELVIEW); //model view
+    glLoadIdentity();
+
+    glEnable(GL_BLEND); //enable transparency
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    if (stereoView) {
+        glViewport(0,0,width/2,height);
+        leftImage->draw();
+
+        glViewport(width/2,0,width/2,height);
+        rightImage->draw();
+    } else {
+        glViewport(0,0,width,height);
+        leftImage->draw(0.5);
+        rightImage->draw(0.5);
+    }
+
+    glDisable(GL_BLEND);
+
+    if (stereoView) {
+        glViewport(0,0,width/5,height);
+        drawText(width/2, height);
+
+        glViewport(width/2,0,width/5,height);
+        drawText(width/2, height);
+    } else {
+        drawText(width, height);
+    }
 
     glutSwapBuffers();
     calculateFPS();
@@ -95,6 +122,9 @@ void keyboard(unsigned char key, int x, int y) {
             break;
         case 'd':
             leftImage->alignAdd(MOVEMENT_RATE,0);
+            break;
+        case ' ':
+            stereoView=!stereoView;
             break;
     }
     glutPostRedisplay();
@@ -128,8 +158,8 @@ int main(int argc, char** argv) {
     glutKeyboardFunc(keyboard);
 
 #ifdef CONSTANT_UPDATE
-    //glutTimerFunc(0, timer, 0);
-    glutIdleFunc(idleFunc);
+    glutTimerFunc(0, timer, 0);
+    //glutIdleFunc(idleFunc);
 #endif
 
     glutTimerFunc(0, fps_timer, 0);
