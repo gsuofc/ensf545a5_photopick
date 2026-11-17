@@ -42,6 +42,7 @@ int clickedButton = -1;
 //Toggles
 int stereoView = 1;
 int hapticMode = 0;
+int showHud = 1;
 
 string getYesNo(int condition) {
     if (condition) return "Yes";
@@ -68,18 +69,40 @@ void drawBitmapText(float x, float y, const std::string& text) {
     }
 }
 
+void drawCube(double x, double y, double w, double h) {
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslated(x, y, 0);
+    glScaled(w,h,0);
+    glBegin(GL_QUADS);
+        glColor3f(1.0f, 1.0f, 1.0f);   
+
+        glVertex2f(-0.5f, -0.5f);      // Bottom-left
+
+        glVertex2f(0.5f, -0.5f);       // Bottom-right
+
+        glVertex2f(0.5f, 0.5f);        // Top-right
+        
+        glVertex2f(-0.5f, 0.5f);        // Top-left
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
+}
+
 void drawText(int width, int height) {
+    if (!showHud) return;
     //Text
     glPushMatrix();
     gluOrtho2D(0, width, 0, height);
     string HUDTXT[] = {
         "ENSF545A5 Gavin+Kewei: Photogrammetry Obs Tool",
+        "Hide HUD (h), Exit fullscreen (p), Quit (esc)",
         "FPS: "+to_string(displayedFPS),
         "Window: "+to_string(width)+"x"+to_string(height),
         "Stereo Mode (space): "+getYesNo(stereoView),
         "Haptic Mode (1): "+to_string(hapticMode+1),
     };
-    int HUDlength = 5;
+    int HUDlength = 6;
     for (int i=0; i<HUDlength; i++) drawBitmapText(0,18*i,HUDTXT[i]);
     glPopMatrix();
 }
@@ -102,9 +125,11 @@ void display() {
     if (stereoView) {
         glViewport(0,0,width/2,height);
         leftImage->draw();
+        drawCube(0,-0.8,0.1,0.1);
 
         glViewport(width/2,0,width/2,height);
         rightImage->draw();
+        drawCube(0,-0.8,0.1,0.1);
     } else {
         glViewport(0,0,width,height);
         leftImage->draw(0.5);
@@ -150,6 +175,12 @@ void keyboard(unsigned char key, int x, int y) {
         case '1':
             hapticMode=!hapticMode;
             break;
+        case 'p':
+            glutReshapeWindow(300, 300);
+            break;
+        case 'h':
+            showHud=!showHud;
+            break;
     }
     glutPostRedisplay();
 }
@@ -173,8 +204,8 @@ void motionCallback(int x, int y) {
         int deltaX = x - lastMouseX;
         int deltaY = y - lastMouseY;
 
-        double moveX = deltaX*1.0/width;
-        double moveY = -deltaY*1.0/height;
+        double moveX = deltaX*1.0/width*2;
+        double moveY = -deltaY*1.0/height*2;
 
         if (clickedButton == GLUT_LEFT_BUTTON) {
             leftImage->alignAdd(moveX,moveY);
