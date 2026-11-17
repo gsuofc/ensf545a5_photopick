@@ -277,9 +277,9 @@ int main(int argc, char** argv) {
     glutTimerFunc(0, fps_timer, 0);
 
     int widthL, heightL, nrChannelsL;
-    unsigned char *dataL = stbi_load("images/8MGY17062_034.jpg", &widthL, &heightL, &nrChannelsL, 0); 
+    unsigned char *dataL = stbi_load("images/dec_1_027_d.jpg", &widthL, &heightL, &nrChannelsL, 0); 
     int widthR, heightR, nrChannelsR;
-    unsigned char *dataR = stbi_load("images/8MGY17062_033.jpg", &widthR, &heightR, &nrChannelsR, 0); 
+    unsigned char *dataR = stbi_load("images/dec_1_028_d.jpg", &widthR, &heightR, &nrChannelsR, 0); 
 
     if (!dataL || !dataR) {
         cout << "Failed to load textures!" << endl;
