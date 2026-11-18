@@ -1,13 +1,15 @@
-#ifdef __APPLE__
-    #include <GLUT/glut.h>
-#else
-    #include <GL/glut.h>
-#endif
-
 #include "alignedImage.h"
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
 alignedImage::alignedImage(unsigned int tid) {
     textureID = tid;
+    xAlign = 0;
+    yAlign = 0;
 }
 alignedImage::~alignedImage() {
 

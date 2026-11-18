@@ -1,3 +1,5 @@
+#include <cstdlib> // included first
+
 #ifdef __APPLE__
     #include <GLUT/glut.h>
 #else
@@ -6,7 +8,7 @@
 
 #define CONSTANT_UPDATE
 
-#include <cstdlib>
+
 #include <iostream>
 #include <string>
 #include "chronoTimekeep.h"
@@ -122,6 +124,10 @@ void display() {
 
     glClear(GL_COLOR_BUFFER_BIT); //clear screen
 
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-1, 1, -1, 1, -1, 1);
+
     glMatrixMode(GL_MODELVIEW); //model view
     glLoadIdentity();
 
@@ -166,7 +172,7 @@ void display() {
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
         case 27:
-            exit(0);
+            std::exit(0);
             break;
         case 'w':
             yCam+=0.25;
@@ -283,7 +289,7 @@ int main(int argc, char** argv) {
 
     if (!dataL || !dataR) {
         cout << "Failed to load textures!" << endl;
-        exit(0);
+        std::exit(0);
     }
 
     //Setup objects
@@ -294,10 +300,10 @@ int main(int argc, char** argv) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthL, heightL, 0, GL_RGB, GL_UNSIGNED_BYTE, dataL);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
 
     unsigned int rightImageTID;
     glGenTextures(1, &rightImageTID);
@@ -306,10 +312,10 @@ int main(int argc, char** argv) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthR, heightR, 0, GL_RGB, GL_UNSIGNED_BYTE, dataR);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
 
     glutMainLoop();
     return 0;

@@ -1,3 +1,6 @@
 *.out
 images/.DS_Store
 .DS_Store
+/.vs
+/build/x64/Debug
+/x64/Debug
