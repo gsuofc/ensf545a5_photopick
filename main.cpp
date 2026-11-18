@@ -174,16 +174,16 @@ void keyboard(unsigned char key, int x, int y) {
         case 27:
             std::exit(0);
             break;
-        case 'w':
+        case 's':
             yCam+=0.25;
             break;
-        case 's':
+        case 'w':
             yCam+=-0.25;
             break;
-        case 'a':
+        case 'd':
             xCam-=0.25;
             break;
-        case 'd':
+        case 'a':
             xCam+=0.25;
             break;
         case 'q':
