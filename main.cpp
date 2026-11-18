@@ -101,16 +101,22 @@ void drawText(int width, int height) {
     //Text
     glPushMatrix();
     gluOrtho2D(0, width, 0, height);
+
+	double xSeperation = rightImage->getXAlign() - leftImage->getXAlign();
+	double ySeperation = rightImage->getYAlign() - leftImage->getYAlign();
+
     string HUDTXT[] = {
         "ENSF545A5 Gavin+Kewei: Photogrammetry Obs Tool",
         "FPS: "+to_string(displayedFPS),
+		"Seperation: " + to_string(xSeperation) + ", " + to_string(ySeperation),
+        "",
         "Hide HUD (h), Exit fullscreen (p), Quit (esc)",
         "Pan (w,s,a,d), Zoom (q,e)",
         "Window: "+to_string(width)+"x"+to_string(height),
         "Stereo Mode (space): "+getYesNo(stereoView),
         "Haptic Mode (1): "+to_string(hapticMode+1),
     };
-    int HUDlength = 7;
+    int HUDlength = 9;
     for (int i=0; i<HUDlength; i++) drawBitmapText(0,18*i,HUDTXT[i]);
     glPopMatrix();
 }
