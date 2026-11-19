@@ -110,6 +110,7 @@ void drawText(int width, int height) {
         "ENSF545A5 Gavin+Kewei: Photogrammetry Obs Tool",
         "FPS: "+to_string(displayedFPS),
 		"Seperation: " + to_string(xSeperation) + ", " + to_string(ySeperation),
+		"Rotation: " + to_string(leftImage->getRotationAngle()) + ", " + to_string(rightImage->getRotationAngle()), 
         "",
         "Hide HUD (h), Exit fullscreen (p), Quit (esc)",
         "Pan (w,s,a,d), Zoom (q,e)",
@@ -117,7 +118,7 @@ void drawText(int width, int height) {
         "Stereo Mode (space): "+getYesNo(stereoView),
         "Haptic Mode (1): "+to_string(hapticMode+1),
     };
-    int HUDlength = 9;
+    int HUDlength = 10;
     for (int i=0; i<HUDlength; i++) drawBitmapText(0,18*i,HUDTXT[i]);
     glPopMatrix();
 }
@@ -179,7 +180,7 @@ void display() {
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
         case 27:
-			saveToFile(leftImage->getXAlign(), leftImage->getYAlign(), rightImage->getXAlign(), rightImage->getYAlign());
+			saveToFile(leftImage->getXAlign(), leftImage->getYAlign(), rightImage->getXAlign(), rightImage->getYAlign(), leftImage->getRotationAngle(), rightImage->getRotationAngle());
             std::exit(0);
             break;
         case 's':
@@ -219,6 +220,12 @@ void keyboard(unsigned char key, int x, int y) {
         case 'x':
             leftImage->alignAdd(-0.001, 0);
             rightImage->alignAdd(0.001, 0);
+            break;
+        case 'c':
+			leftImage->rotateAdd(0.1);
+			break;
+        case 'v':
+            leftImage->rotateAdd(-0.1);
             break;
     }
     glutPostRedisplay();
@@ -335,10 +342,13 @@ int main(int argc, char** argv) {
 
 	double leftXAlign, leftYAlign, rightXAlign, rightYAlign;
 	leftXAlign = leftYAlign = rightXAlign = rightYAlign = 0;
+	double leftRotationAngle = 0, rightRotationAngle = 0;
 
-    loadFromFile(leftXAlign, leftYAlign, rightXAlign, rightYAlign);
+    loadFromFile(leftXAlign, leftYAlign, rightXAlign, rightYAlign, leftRotationAngle, rightRotationAngle);
 	leftImage->align(leftXAlign, leftYAlign);
 	rightImage->align(rightXAlign, rightYAlign);
+	leftImage->rotate(leftRotationAngle);
+	rightImage->rotate(rightRotationAngle);
 
     glutMainLoop();
     return 0;
