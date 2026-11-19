@@ -210,6 +210,14 @@ void keyboard(unsigned char key, int x, int y) {
         case 'h':
             showHud=!showHud;
             break;
+        case 'z':
+            leftImage->alignAdd(0.001, 0);
+            rightImage->alignAdd(-0.001, 0);
+            break;
+        case 'x':
+            leftImage->alignAdd(-0.001, 0);
+            rightImage->alignAdd(0.001, 0);
+            break;
     }
     glutPostRedisplay();
 }
