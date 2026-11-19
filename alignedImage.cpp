@@ -33,6 +33,7 @@ void alignedImage::draw(float opacity) {
 
     //glLoadIdentity();
     glTranslated(xAlign, yAlign, 0);
+	glRotated(rotationAngle, 0, 0, 1); // Rotate around Z-axis
     glBegin(GL_QUADS);
         glColor4f(1.0f, 1.0f, 1.0f, opacity);   
 

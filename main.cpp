@@ -16,6 +16,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "alignedImage.h"
+#include "saveLoader.h"
 using namespace std;
 
 #define PRG_NAME "stereo_align"
@@ -178,6 +179,7 @@ void display() {
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
         case 27:
+			saveToFile(leftImage->getXAlign(), leftImage->getYAlign(), rightImage->getXAlign(), rightImage->getYAlign());
             std::exit(0);
             break;
         case 's':
@@ -330,6 +332,13 @@ int main(int argc, char** argv) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthR, heightR, 0, GL_RGB, GL_UNSIGNED_BYTE, dataR);
     //glGenerateMipmap(GL_TEXTURE_2D);
+
+	double leftXAlign, leftYAlign, rightXAlign, rightYAlign;
+	leftXAlign = leftYAlign = rightXAlign = rightYAlign = 0;
+
+    loadFromFile(leftXAlign, leftYAlign, rightXAlign, rightYAlign);
+	leftImage->align(leftXAlign, leftYAlign);
+	rightImage->align(rightXAlign, rightYAlign);
 
     glutMainLoop();
     return 0;

@@ -1,3 +1,5 @@
+#ifndef CHRONOTIMEKEEP_H
+#define CHRONOTIMEKEEP_H
 #include <chrono>
 #include <iostream>
 using namespace std;
@@ -17,3 +19,4 @@ class Timer {
         start = std::chrono::steady_clock::now();
     }
 };
+#endif
