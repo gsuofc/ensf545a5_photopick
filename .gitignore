@@ -4,3 +4,5 @@ images/.DS_Store
 /.vs
 /build/x64/Debug
 /x64/Debug
+/PhotoObsPrg/x64/Release
+/x64/Release
