@@ -22,7 +22,7 @@
 using namespace std;
 
 #ifdef HAPTIC
-
+#include <windows.h>
 #include <HL/hl.h>
 #include <HDU/hduMatrix.h>
 #include <HDU/hduError.h>
