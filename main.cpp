@@ -6,6 +6,8 @@
     #include <GL/glut.h>
 #endif
 
+#define HAPTIC
+
 #define CONSTANT_UPDATE
 
 
@@ -18,6 +20,15 @@
 #include "alignedImage.h"
 #include "saveLoader.h"
 using namespace std;
+
+#ifdef HAPTIC
+
+#include <HL/hl.h>
+#include <HDU/hduMatrix.h>
+#include <HDU/hduError.h>
+#include <HLU/hlu.h>
+
+#endif
 
 #define PRG_NAME "stereo_align"
 #define MOVEMENT_RATE 0.004

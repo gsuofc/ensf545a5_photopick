@@ -68,10 +68,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <AdditionalLibraryDirectories>$(OH_SDK_BASE)\lib\x64\Release;$(OH_SDK_BASE)\utilities\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\545+602-LabCode\Downloads_MVS2022\KNAVELib_MVS2022\lib;$(OH_SDK_BASE)\lib\x64\Release;$(OH_SDK_BASE)\utilities\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GlU32.Lib;OpenGL32.Lib;glut32.lib;hl.lib;hlu.lib;hd.lib;hdu.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(OH_SDK_BASE)\include;$(OH_SDK_BASE)\utilities\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>545+602-LabCode\Downloads_MVS2022\KNAVELib_MVS2022\include;$(OH_SDK_BASE)\include;$(OH_SDK_BASE)\utilities\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
