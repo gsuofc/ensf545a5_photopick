@@ -25,11 +25,43 @@ void alignedImage::alignAdd(double x, double y) {
     yAlign += y;
 }
 
+void alignedImage::drawWithoutRotate(float opacity) {
+    glPushMatrix();
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//We want 2d image to be nearest
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    //glLoadIdentity();
+    glTranslated(xAlign, yAlign, 0);
+    glBegin(GL_QUADS);
+        glColor4f(1.0f, 1.0f, 1.0f, opacity);   
+
+        glTexCoord2f(0.0f, 0.0f);
+        glVertex2f(-0.5f, -0.5f);      // Bottom-left
+
+        glTexCoord2f(1.0f, 0.0f); 
+        glVertex2f(0.5f, -0.5f);       // Bottom-right
+
+        glTexCoord2f(1.0f, 1.0f); 
+        glVertex2f(0.5f, 0.5f);        // Top-right
+        
+        glTexCoord2f(0.0f, 1.0f); 
+        glVertex2f(-0.5f, 0.5f);        // Top-left
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
+}
+
 void alignedImage::draw(float opacity) {
     glPushMatrix();
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//We want 3d image to be linear
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     //glLoadIdentity();
     glTranslated(xAlign, yAlign, 0);

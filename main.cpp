@@ -196,35 +196,37 @@ void drawHapticCursor()  //Taken from testTeapotHaptic Lab. Credit: Song Ho Ahn.
 #endif
 
 void drawText(int width, int height) {
-    if (!showHud) return;
-    //Text
     glPushMatrix();
     gluOrtho2D(0, width, 0, height);
 
-	double xSeperation = rightImage->getXAlign() - leftImage->getXAlign();
-	double ySeperation = rightImage->getYAlign() - leftImage->getYAlign();
+    double xSeperation = rightImage->getXAlign() - leftImage->getXAlign();
+    double ySeperation = rightImage->getYAlign() - leftImage->getYAlign();
+    if (showHud) {
+        //Text
 
-    string HUDTXT[] = {
-        "ENSF545A5 Gavin+Kewei: Photogrammetry Obs Tool",
-        "FPS: "+to_string(displayedFPS),
-		"Seperation: " + to_string(xSeperation) + ", " + to_string(ySeperation),
-		"Rotation: " + to_string(leftImage->getRotationAngle()) + ", " + to_string(rightImage->getRotationAngle()), 
-#ifdef ALLOW_ADJUSTMENT
-        "Adjustments enabled: Move (Mouse), Rotate (c,v)"
-#else
-        "Adjustments disabled (eye adjustments can be done with z, x)"
-#endif
-        "",
-        "Hide HUD (h), Exit fullscreen (p), Quit (esc)",
-        "Pan (w,s,a,d), Zoom (q,e)",
-        "Window: "+to_string(width)+"x"+to_string(height),
-        "Stereo Mode (space): "+getYesNo(stereoView),
-        "Haptic Device Connected: " + getYesNo(usingHaptics),
-        "Haptic Mode (1): "+to_string(hapticMode+1),
-    };
-    int HUDlength = 12;
-    for (int i=0; i<HUDlength; i++) drawBitmapText(0,18*i,HUDTXT[i]);
-
+        string HUDTXT[] = {
+            "ENSF545A5 Gavin+Kewei: Photogrammetry Obs Tool",
+            "FPS: "+to_string(displayedFPS),
+            "Seperation: " + to_string(xSeperation) + ", " + to_string(ySeperation),
+            "Rotation: " + to_string(leftImage->getRotationAngle()) + ", " + to_string(rightImage->getRotationAngle()), 
+    #ifdef ALLOW_ADJUSTMENT
+            "Adjustments enabled: Move (Mouse), Rotate (c,v)"
+    #else
+            "Adjustments disabled (eye adjustments can be done with z, x)"
+    #endif
+            "",
+            "Hide HUD (h), Exit fullscreen (p), Quit (esc)",
+            "Pan (w,s,a,d), Zoom (q,e)",
+            "Window: "+to_string(width)+"x"+to_string(height),
+            "Stereo Mode (space): "+getYesNo(stereoView),
+            "Haptic Device Connected: " + getYesNo(usingHaptics),
+            "Haptic Mode (1): "+to_string(hapticMode+1),
+            "",
+            "Observing: ("+to_string(obsX)+","+to_string(obsY)+")",
+        };
+        int HUDlength = 14;
+        for (int i=0; i<HUDlength; i++) drawBitmapText(0,18*i,HUDTXT[i]);
+    }
     string obsText;
 
     if (observing==0) {
@@ -236,6 +238,11 @@ void drawText(int width, int height) {
     drawBitmapText(0,height/2,obsText);
 
     glPopMatrix();
+}
+
+void makeObservation() {
+    //Transform 0-1 to image 0-1;
+    observing = !observing;
 }
 
 void display() {
@@ -273,11 +280,11 @@ void display() {
         glViewport(0,0,width/4,height/2);
         drawCube(0,0,5,5);
         if (observing) {
-            leftImage->draw();
-            rightImage->draw();
+            leftImage->drawWithoutRotate();
+            rightImage->drawWithoutRotate();
         } else {
-            rightImage->draw();
-            leftImage->draw();
+            rightImage->drawWithoutRotate();
+            leftImage->drawWithoutRotate();
         }
         
         cross(obsX,obsY,0.5);
@@ -285,11 +292,11 @@ void display() {
         glViewport(width/2,0,width/4,height/2);
         drawCube(0,0,5,5);
         if (observing) {
-            leftImage->draw();
-            rightImage->draw();
+            leftImage->drawWithoutRotate();
+            rightImage->drawWithoutRotate();
         } else {
-            rightImage->draw();
-            leftImage->draw();
+            rightImage->drawWithoutRotate();
+            leftImage->drawWithoutRotate();
         }
         cross(obsX,obsY,0.5);
     } else {
@@ -390,6 +397,11 @@ void mouseCallback(int button, int state, int x, int y) {
         clickedButton = -1;
     }
 #endif
+    if (!usingHaptics) {
+        if (state == GLUT_DOWN) {
+            makeObservation();
+        }
+    }
 }
 
 void passiveMotion(int x, int y) {

@@ -12,6 +12,7 @@ class alignedImage {
 		void rotate(double angle) { rotationAngle = angle; };
 		void rotateAdd(double angle) { rotationAngle += angle; };
         void draw(float opacity=1.0);
+        void drawWithoutRotate(float opacity=1.0);
         double getXAlign() { return xAlign; };
         double getYAlign() { return yAlign; };
 		double getRotationAngle() { return rotationAngle; };
