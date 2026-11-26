@@ -76,6 +76,19 @@ double yCam = 0;
 
 int usingHaptics = 0;
 
+//Observations
+vector<int> left_x_obs;
+vector<int> left_y_obs;
+vector<int> right_x_obs;
+vector<int> right_y_obs;
+
+//Haptic (or simulated mouse) coords
+double obsX = 0;
+double obsY = 0;
+
+//Decide what image to observe
+int observing = 0;
+
 
 string getYesNo(int condition) {
     if (condition) return "Yes";
@@ -102,13 +115,23 @@ void drawBitmapText(float x, float y, const std::string& text) {
     }
 }
 
+void cross(double x, double y, double arm) {
+    glPushMatrix();
+    glLoadIdentity();
+    glBegin(GL_LINES);
+    glVertex2d(x-arm,y); glVertex2d(x+arm,y);
+    glVertex2d(x,y-arm); glVertex2d(x,y+arm);
+    glEnd();
+    glPopMatrix();
+}
+
 void drawCube(double x, double y, double w, double h) {
     glPushMatrix();
     glLoadIdentity();
     glTranslated(x, y, 0);
     glScaled(w,h,0);
     glBegin(GL_QUADS);
-        glColor3f(1.0f, 1.0f, 1.0f);   
+        glColor3f(0.0f, 0.1f, 0.2f);   
 
         glVertex2f(-0.5f, -0.5f);      // Bottom-left
 
@@ -197,6 +220,17 @@ void drawText(int width, int height) {
     };
     int HUDlength = 12;
     for (int i=0; i<HUDlength; i++) drawBitmapText(0,18*i,HUDTXT[i]);
+
+    string obsText;
+
+    if (observing==0) {
+        obsText = "Observing Left Image";
+    } else {
+        obsText = "Observing Right Image";
+    }
+
+    drawBitmapText(0,height/2,obsText);
+
     glPopMatrix();
 }
 
@@ -230,6 +264,30 @@ void display() {
         glViewport(width/2,0,width/2,height);
         rightImage->draw();
         drawCube(0,-0.8,0.1,0.1);
+
+        //Draw mini viewports
+        glViewport(0,0,width/4,height/2);
+        drawCube(0,0,5,5);
+        if (observing) {
+            leftImage->draw();
+            rightImage->draw();
+        } else {
+            rightImage->draw();
+            leftImage->draw();
+        }
+        
+        cross(obsX,obsY,0.5);
+
+        glViewport(width/2,0,width/4,height/2);
+        drawCube(0,0,5,5);
+        if (observing) {
+            leftImage->draw();
+            rightImage->draw();
+        } else {
+            rightImage->draw();
+            leftImage->draw();
+        }
+        cross(obsX,obsY,0.5);
     } else {
         glViewport(0,0,width,height);
         leftImage->draw(0.5);
