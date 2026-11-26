@@ -105,6 +105,11 @@ void calculateFPS() {
     }
 }
 
+void makeObservation() {
+    //Transform 0-1 to image 0-1;
+    observing = !observing;
+}
+
 void drawBitmapText(float x, float y, const std::string& text) {
     int height = glutGet(GLUT_WINDOW_HEIGHT);
     y = height-y-18;
@@ -177,6 +182,13 @@ void HLCALLBACK touchShapeCallback(HLenum event, HLuint object, HLenum thread,
     HLcache* cache, void* userdata)
 {
 
+}
+
+void HLCALLBACK hlButtonDownCB(HLenum event, HLuint object,
+    HLenum thread, HLcache* cache,
+    void* userdata)
+{
+	makeObservation();
 }
 
 void drawSceneHaptics()
@@ -262,11 +274,6 @@ void drawText(int width, int height) {
     glPopMatrix();
 }
 
-void makeObservation() {
-    //Transform 0-1 to image 0-1;
-    observing = !observing;
-}
-
 void display() {
     if (frameInterfalTimer->timeSinceLastCall()<interval/1000.0f) return; //this stops an odd glitch where display() is called twice, no need to render twice
     frameInterfalTimer->resetTime();
@@ -328,9 +335,11 @@ void display() {
     }
 
 #ifdef HAPTIC
-    glScaled(1/zoom, 1/zoom, 1); //fix scaling issue
-    drawSceneHaptics();
-    drawHapticCursor();
+    if (usingHaptics) {
+        glScaled(1 / zoom, 1 / zoom, 1); //fix scaling issue
+        drawSceneHaptics();
+        drawHapticCursor();
+    }
 #endif
 
     glDisable(GL_BLEND);
@@ -509,6 +518,8 @@ void initHL() { //Taken from testTeapotHaptic Lab. Credit: Song Ho Ahn. Y. Hu, L
     hlAddEventCallback(HL_EVENT_TOUCH, HL_OBJECT_ANY, HL_CLIENT_THREAD,
         &touchShapeCallback, NULL);
 
+    hlAddEventCallback(HL_EVENT_1BUTTONDOWN, HL_OBJECT_ANY,
+        HL_CLIENT_THREAD, hlButtonDownCB, NULL);
 
     hlTouchableFace(HL_FRONT); // define force feedback from front faces of teapot
 #endif
