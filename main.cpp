@@ -10,6 +10,8 @@
 #define CONSTANT_UPDATE
 //#define ALLOW_ADJUSTMENT
 
+#define PIP_ZOOM 1.0
+
 
 #include <iostream>
 #include <string>
@@ -70,7 +72,7 @@ int hapticMode = 0;
 int showHud = 1;
 
 //Zoom and scrolling
-double zoom = 1;
+double zoom = 2;
 double xCam = 0;
 double yCam = 0;
 
@@ -297,16 +299,18 @@ void display() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     if (stereoView) {
-        glViewport(0,0,width/2,height);
+        glViewport(width/4,0,width/4,height*.75);
         leftImage->draw();
         drawCube(0,-0.8,0.1,0.1);
 
-        glViewport(width/2,0,width/2,height);
+        glViewport((width*3)/4,0,width/4, height * .75);
         rightImage->draw();
         drawCube(0,-0.8,0.1,0.1);
 
+        glScaled(PIP_ZOOM, PIP_ZOOM, 1);
+
         //Draw mini viewports
-        glViewport(0,0,width/4,height/2);
+        glViewport(0,0,width/4, height * .75);
         drawCube(0,0,5,5);
         if (observing) {
             leftImage->drawWithoutRotate();
@@ -318,7 +322,7 @@ void display() {
         
         cross(obsX,obsY,0.5);
 
-        glViewport(width/2,0,width/4,height/2);
+        glViewport(width/2,0,width/4, height * .75);
         drawCube(0,0,5,5);
         if (observing) {
             leftImage->drawWithoutRotate();
@@ -333,9 +337,12 @@ void display() {
         leftImage->draw(0.5);
         rightImage->draw(0.5);
     }
+    glViewport(0,0,width,height);
 
 #ifdef HAPTIC
     if (usingHaptics) {
+        glTranslated(-xCam, -yCam, 0);
+        glScaled(1/ PIP_ZOOM, 1/ PIP_ZOOM, 1);
         glScaled(1 / zoom, 1 / zoom, 1); //fix scaling issue
         drawSceneHaptics();
         drawHapticCursor();
@@ -384,7 +391,7 @@ void keyboard(unsigned char key, int x, int y) {
             if (zoom>=1) zoom/=2;
             break;
         case 'e':
-            if (zoom<16) zoom*=2;
+            if (zoom<8) zoom*=2;
             break;
         case ' ':
             stereoView=!stereoView;
