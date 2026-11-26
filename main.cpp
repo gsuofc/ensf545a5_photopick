@@ -216,8 +216,8 @@ void display() {
     glMatrixMode(GL_MODELVIEW); //model view
     glLoadIdentity();
 
-    glTranslated(xCam,yCam,0);
     glScaled(zoom,zoom,1);
+    glTranslated(xCam,yCam,0);
 
     glEnable(GL_BLEND); //enable transparency
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -267,16 +267,16 @@ void keyboard(unsigned char key, int x, int y) {
             std::exit(0);
             break;
         case 's':
-            yCam+=0.25;
+            yCam+=0.25/zoom;
             break;
         case 'w':
-            yCam+=-0.25;
+            yCam+=-0.25/zoom;
             break;
         case 'd':
-            xCam-=0.25;
+            xCam-=0.25/zoom;
             break;
         case 'a':
-            xCam+=0.25;
+            xCam+=0.25/zoom;
             break;
         case 'q':
             zoom/=2;
