@@ -4,11 +4,11 @@
     #include <GLUT/glut.h>
 #else
     #include <GL/glut.h>
+    #define HAPTIC
 #endif
 
-#define HAPTIC
-
 #define CONSTANT_UPDATE
+//#define ALLOW_ADJUSTMENT
 
 
 #include <iostream>
@@ -182,6 +182,11 @@ void drawText(int width, int height) {
         "FPS: "+to_string(displayedFPS),
 		"Seperation: " + to_string(xSeperation) + ", " + to_string(ySeperation),
 		"Rotation: " + to_string(leftImage->getRotationAngle()) + ", " + to_string(rightImage->getRotationAngle()), 
+#ifdef ALLOW_ADJUSTMENT
+        "Adjustments enabled: Move (Mouse), Rotate (c,v)"
+#else
+        "Adjustments disabled (eye adjustments can be done with z, x)"
+#endif
         "",
         "Hide HUD (h), Exit fullscreen (p), Quit (esc)",
         "Pan (w,s,a,d), Zoom (q,e)",
@@ -190,7 +195,7 @@ void drawText(int width, int height) {
         "Haptic Device Connected: " + getYesNo(usingHaptics),
         "Haptic Mode (1): "+to_string(hapticMode+1),
     };
-    int HUDlength = 11;
+    int HUDlength = 12;
     for (int i=0; i<HUDlength; i++) drawBitmapText(0,18*i,HUDTXT[i]);
     glPopMatrix();
 }
@@ -231,7 +236,9 @@ void display() {
         rightImage->draw(0.5);
     }
 
+#ifdef HAPTIC
     drawHapticCursor();
+#endif
 
     glDisable(GL_BLEND);
 
@@ -254,7 +261,9 @@ void display() {
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
         case 27:
+#ifdef ALLOW_ADJUSTMENT
 			saveToFile(leftImage->getXAlign(), leftImage->getYAlign(), rightImage->getXAlign(), rightImage->getYAlign(), leftImage->getRotationAngle(), rightImage->getRotationAngle());
+#endif
             std::exit(0);
             break;
         case 's':
@@ -295,17 +304,20 @@ void keyboard(unsigned char key, int x, int y) {
             leftImage->alignAdd(-0.001, 0);
             rightImage->alignAdd(0.001, 0);
             break;
+#ifdef ALLOW_ADJUSTMENT
         case 'c':
 			leftImage->rotateAdd(0.1);
 			break;
         case 'v':
             leftImage->rotateAdd(-0.1);
             break;
+#endif
     }
     glutPostRedisplay();
 }
 
 void mouseCallback(int button, int state, int x, int y) {
+#ifdef ALLOW_ADJUSTMENT
     if (state == GLUT_DOWN) {
         isDragging = 1;
         clickedButton = button; 
@@ -315,6 +327,7 @@ void mouseCallback(int button, int state, int x, int y) {
         isDragging = 0;
         clickedButton = -1;
     }
+#endif
 }
 
 void motionCallback(int x, int y) {
