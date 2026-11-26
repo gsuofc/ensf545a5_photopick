@@ -116,6 +116,10 @@ void drawBitmapText(float x, float y, const std::string& text) {
 }
 
 void cross(double x, double y, double arm) {
+    x-=0.5;
+    y-=0.5;
+    x*=2;
+    y*=2; //transform 0-1 to -1-1 space;
     glPushMatrix();
     glLoadIdentity();
     glBegin(GL_LINES);
@@ -388,6 +392,16 @@ void mouseCallback(int button, int state, int x, int y) {
 #endif
 }
 
+void passiveMotion(int x, int y) {
+    if (!usingHaptics) {
+        int width = glutGet(GLUT_WINDOW_WIDTH);
+        int height = glutGet(GLUT_WINDOW_HEIGHT);
+
+        obsX = x*1.0/width;
+        obsY = 1.0-(y*1.0/height);
+    }
+}
+
 void motionCallback(int x, int y) {
     int width = glutGet(GLUT_WINDOW_WIDTH);
     if (stereoView) width/=2;
@@ -522,6 +536,7 @@ int main(int argc, char** argv) {
 
     glutMouseFunc(mouseCallback);
     glutMotionFunc(motionCallback);
+    glutPassiveMotionFunc(passiveMotion);
 
 #ifdef CONSTANT_UPDATE
     glutTimerFunc(0, timer, 0);
