@@ -348,10 +348,10 @@ void keyboard(unsigned char key, int x, int y) {
             xCam+=0.25/zoom;
             break;
         case 'q':
-            zoom/=2;
+            if (zoom>=1) zoom/=2;
             break;
         case 'e':
-            zoom*=2;
+            if (zoom<16) zoom*=2;
             break;
         case ' ':
             stereoView=!stereoView;
