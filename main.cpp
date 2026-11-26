@@ -36,7 +36,7 @@ static HHLRC ghHLRC = 0;
 HLuint gSurfaceShapeID;
 
 #define CURSOR_SCALE_SIZE 60
-static double gCursorScale;
+static double gCursorScale = 1;
 static GLuint gCursorDisplayList = 0;
 
 #endif
@@ -77,10 +77,10 @@ double yCam = 0;
 int usingHaptics = 0;
 
 //Observations
-vector<int> left_x_obs;
-vector<int> left_y_obs;
-vector<int> right_x_obs;
-vector<int> right_y_obs;
+//vector<int> left_x_obs;
+//vector<int> left_y_obs;
+//vector<int> right_x_obs;
+//vector<int> right_y_obs;
 
 //Haptic (or simulated mouse) coords
 double obsX = 0;
@@ -152,46 +152,68 @@ void drawCube(double x, double y, double w, double h) {
 #ifdef HAPTIC
 void drawHapticCursor()  //Taken from testTeapotHaptic Lab. Credit: Song Ho Ahn. Y. Hu, L. Ghaemi Dizaji
 {
-    static const double kCursorRadius = 0.5;
-    static const double kCursorHeight = 1.5;
-    static const int kCursorTess = 15;
-    HLdouble proxyxform[16];
-
-    GLUquadricObj* qobj = 0;
 
     glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LIGHTING_BIT);
+    glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
+    glLoadIdentity();
 
-    if (!gCursorDisplayList)
-    {
-        gCursorDisplayList = glGenLists(1);
-        glNewList(gCursorDisplayList, GL_COMPILE);
-        qobj = gluNewQuadric();
+    //Get haptic cursor pos
+    HLdouble proxyPosition[3];
+    hlGetDoublev(HL_PROXY_POSITION, proxyPosition);
 
-        gluCylinder(qobj, 0.0, kCursorRadius, kCursorHeight,
-            kCursorTess, kCursorTess);
-        glTranslated(0.0, 0.0, kCursorHeight);
-        gluCylinder(qobj, kCursorRadius, 0.0, kCursorHeight / 5.0,
-            kCursorTess, kCursorTess);
+    double x = proxyPosition[0];
+    double y = proxyPosition[1];
+    double z = proxyPosition[2];
 
-        gluDeleteQuadric(qobj);
-        glEndList();
-    }
-
-    // Get the proxy transform in world coordinates for haptic device.
-    hlGetDoublev(HL_PROXY_TRANSFORM, proxyxform);
-    glMultMatrixd(proxyxform);
-
-    // Apply the local cursor scale factor.
-    glScaled(gCursorScale, gCursorScale, gCursorScale);
-
-    glEnable(GL_COLOR_MATERIAL);
-    glColor3f(0.0, 0.5, 1.0);
-
-    glCallList(gCursorDisplayList);
+    obsX = (x + 1.0) / 2.0;
+    obsY = (y + 1.0) / 2.0;
 
     glPopMatrix();
     glPopAttrib();
+}
+
+void HLCALLBACK touchShapeCallback(HLenum event, HLuint object, HLenum thread,
+    HLcache* cache, void* userdata)
+{
+
+}
+
+void drawSceneHaptics()
+{
+    hlBeginFrame();
+
+    hlMaterialf(HL_FRONT_AND_BACK, HL_STIFFNESS, 0.7f);
+    hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.1f);
+
+    if (hapticMode) {
+        hlMaterialf(HL_FRONT_AND_BACK, HL_STATIC_FRICTION, 0.0f);
+        hlMaterialf(HL_FRONT_AND_BACK, HL_DYNAMIC_FRICTION, 0.0f);
+    }
+    else {
+        hlMaterialf(HL_FRONT_AND_BACK, HL_STATIC_FRICTION, 1.0f);
+        hlMaterialf(HL_FRONT_AND_BACK, HL_DYNAMIC_FRICTION, 1.0f);
+    }
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, gSurfaceShapeID);
+
+    glBegin(GL_QUADS);
+        glVertex3d(-5.2, -5.2, 0.0);
+        glVertex3d( 5.2, -5.2, 0.0);
+        glVertex3d( 5.2,  5.2, 0.0);
+        glVertex3d(-5.2,  5.2, 0.0);
+    glEnd();
+
+    hlEndShape();
+
+    glPopMatrix();
+
+    hlEndFrame();
+    hlCheckEvents();
 }
 #endif
 
@@ -306,6 +328,8 @@ void display() {
     }
 
 #ifdef HAPTIC
+    glScaled(1/zoom, 1/zoom, 1); //fix scaling issue
+    drawSceneHaptics();
     drawHapticCursor();
 #endif
 
@@ -454,52 +478,6 @@ void fps_timer(int value) {
     glutTimerFunc(fpsDispInterval, fps_timer, 0); 
 }
 
-#ifdef HAPTIC
-void HLCALLBACK touchShapeCallback(HLenum event, HLuint object, HLenum thread,
-    HLcache* cache, void* userdata)
-{
-
-}
-
-void drawSceneHaptics()
-{
-    // Start haptic frame.  (Must do this before rendering any haptic shapes.)
-    hlBeginFrame();
-
-    // Set material properties for the shapes to be drawn.
-    hlMaterialf(HL_FRONT_AND_BACK, HL_STIFFNESS, 0.7f);
-    hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.1f);
-    hlMaterialf(HL_FRONT_AND_BACK, HL_STATIC_FRICTION, 0.0f);
-    hlMaterialf(HL_FRONT_AND_BACK, HL_DYNAMIC_FRICTION, 0.0f);
-    if (hapticMode) {
-        hlMaterialf(HL_FRONT_AND_BACK, HL_STIFFNESS, 0.7f);
-        hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.1f);
-        hlMaterialf(HL_FRONT_AND_BACK, HL_STATIC_FRICTION, 0.0f);
-        hlMaterialf(HL_FRONT_AND_BACK, HL_DYNAMIC_FRICTION, 0.0f);
-    } else {
-        hlMaterialf(HL_FRONT_AND_BACK, HL_STIFFNESS, 0.7f);
-        hlMaterialf(HL_FRONT_AND_BACK, HL_DAMPING, 0.1f);
-        hlMaterialf(HL_FRONT_AND_BACK, HL_STATIC_FRICTION, 1.0f);
-        hlMaterialf(HL_FRONT_AND_BACK, HL_DYNAMIC_FRICTION, 1.0f);
-	}
-
-    // Start a new haptic shape.  Use the feedback buffer to capture OpenGL 
-    // geometry for haptic rendering.
-    hlBeginShape(HL_SHAPE_FEEDBACK_BUFFER, gSurfaceShapeID);
-    glPushMatrix();
-    leftImage->draw();
-    glPopMatrix();
-    hlEndShape();
-
-    // End the haptic frame.
-    hlEndFrame();
-
-    // Call any event callbacks that have been triggered.
-    hlCheckEvents();
-
-}
-
-#endif
 
 void initHL() { //Taken from testTeapotHaptic Lab. Credit: Song Ho Ahn. Y. Hu, L. Ghaemi Dizaji
 #ifdef HAPTIC
@@ -518,9 +496,11 @@ void initHL() { //Taken from testTeapotHaptic Lab. Credit: Song Ho Ahn. Y. Hu, L
     ghHLRC = hlCreateContext(ghHD);
     hlMakeCurrent(ghHLRC);
 
-    // Enable optimization of the viewing parameters when rendering
-    // geometry for OpenHaptics.
-    hlEnable(HL_HAPTIC_CAMERA_VIEW);
+    hlWorkspace(-80, -80, -70, 80, 80, 20);
+
+    hlMatrixMode(HL_TOUCHWORKSPACE);
+    hlLoadIdentity();
+    hlOrtho(-1, 1, -1, 1, -1, 1);
 
     // Generate id's for the teapot shape and the sphere shape.
     gSurfaceShapeID = hlGenShapes(1);
